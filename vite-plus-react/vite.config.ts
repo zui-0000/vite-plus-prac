@@ -30,5 +30,9 @@ export default defineConfig({
       },
     ],
   },
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/__vitest__/setup.ts"],
+  },
   plugins: lazyPlugins(() => [react()]),
 });
