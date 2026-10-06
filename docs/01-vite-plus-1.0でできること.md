@@ -191,11 +191,11 @@ export default defineConfig({
   import { describe, expect, test } from "vite-plus/test";
   ```
 
-- `vite-plus-react/` では `test.globals: true` にして、import せずに使う構成にした（詳細は `03-tsconfig・エイリアス・Vitest のグローバル API.md`）
+- `frontend/` では `test.globals: true` にして、import せずに使う構成にした（詳細は `03-tsconfig・エイリアス・Vitest のグローバル API.md`）
 - テンプレートにテストの雛形は含まれていない
 - `vp test` はデフォルトでは watch モードにならない（Vitest 単体とは逆）。watch したいときは `vp test watch` を使う
 
-### React コンポーネントのテスト環境（`vite-plus-react/` で構築済み）
+### React コンポーネントのテスト環境（`frontend/` で構築済み）
 
 ```bash
 vp add -D @testing-library/react @testing-library/dom @testing-library/jest-dom @testing-library/user-event jsdom
@@ -251,7 +251,7 @@ DOM が残っていても、テストの書き方によっては通ってしま�
 
 - create-vite の `react-ts` テンプレートでは `typescript: ~6.0.2` が入る
 - 7 系に上げても、`tsc -b`（`build` スクリプト）と `vp check` の両方が成功した。わざと型エラーを入れると、どちらでも検出された
-- `vite-plus-react/` では `vp update -L typescript` で上げた（`~7.0.2` になる）。`^` ではなく `~` のまま上げる理由は `02-依存関係の更新（vp update）.md` を参照
+- `frontend/` では `vp update -L typescript` で上げた（`~7.0.2` になる）。`^` ではなく `~` のまま上げる理由は `02-依存関係の更新（vp update）.md` を参照
 - 生成される tsconfig（`moduleResolution: bundler`、`erasableSyntaxOnly` など）は、もともと TS 6/7 で非推奨になった設定を使っていないので、変更なしで通った
 - その後、TS 7 の推奨設定に合わせて tsconfig を調整した（詳細は `03-tsconfig・エイリアス・Vitest のグローバル API.md`）
 

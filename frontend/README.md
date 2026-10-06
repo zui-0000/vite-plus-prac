@@ -1,4 +1,4 @@
-# vite-plus-react
+# frontend
 
 [Vite+](https://viteplus.dev/)（`vp`）1.0 で構築した React + TypeScript のフロントエンド。
 
@@ -30,7 +30,7 @@ vp hooks status   # 「Project hooks: pre-commit」と表示されれば OK
 Git フックの有効・無効は各 PC のローカル設定（`git config core.hooksPath`）なので、クローンしただけでは引き継がれない。そのため最初に 1 回だけ実行する。フックの本体（`.vite-hooks/pre-commit`）はリポジトリのルートにある。
 
 > [!WARNING]
-> 必ず**リポジトリのルート**で実行すること。`vite-plus-react/` の中で `vp hooks enable` や `vp config` を実行すると、フックの置き場所が `vite-plus-react/.vite-hooks/` という誤った場所で設定され、コミット時に何も実行されなくなる。
+> 必ず**リポジトリのルート**で実行すること。`frontend/` の中で `vp hooks enable` や `vp config` を実行すると、フックの置き場所が `frontend/.vite-hooks/` という誤った場所で設定され、コミット時に何も実行されなくなる。
 >
 > 間違えて実行してしまった場合は、ルートで次のコマンドを実行すれば直る。
 >
@@ -42,12 +42,12 @@ Git フックの有効・無効は各 PC のローカル設定（`git config cor
 ### 3. Node.js・pnpm・依存関係をインストールする
 
 ```bash
-cd vite-plus-react
+cd frontend
 vp env install   # Node.js 24.21.0 と pnpm 12.9.1 を入れる
 vp install       # 依存関係をインストールする
 ```
 
-`.node-version` はリポジトリのルートにあるが、`vp` はカレントディレクトリから親ディレクトリへさかのぼって探すので、`vite-plus-react/` の中で実行してもルートの `.node-version` が使われる。一方、pnpm のバージョンはこのフォルダの `package.json` に書かれているので、`vite-plus-react/` の中でないと解決されない。
+`.node-version` はリポジトリのルートにあるが、`vp` はカレントディレクトリから親ディレクトリへさかのぼって探すので、`frontend/` の中で実行してもルートの `.node-version` が使われる。一方、pnpm のバージョンはこのフォルダの `package.json` に書かれているので、`frontend/` の中でないと解決されない。
 
 > [!WARNING]
 > `vp install` を**リポジトリのルートで実行しない**こと。ルートには `package.json` が無いため、中身が空の `package.json`・`pnpm-lock.yaml`・`node_modules/` がルートに作られてしまう（エラーにはならない）。作られてしまった場合は、その 3 つを削除する。
@@ -62,7 +62,7 @@ vp dev
 
 ## よく使うコマンド
 
-以下はすべてこのフォルダ（`vite-plus-react/`）で実行する。
+以下はすべてこのフォルダ（`frontend/`）で実行する。
 
 | やりたいこと                     | コマンド                             | 補足                                                                       |
 | -------------------------------- | ------------------------------------ | -------------------------------------------------------------------------- |
@@ -95,7 +95,7 @@ vp dev
 
 - フォーマットや lint で自動修正できるものは、修正された内容がそのままコミットされる
 - 型エラーなど自動で直せない問題があると、コミットが中止される
-- `docs/` など、`vite-plus-react/` の外のファイルだけをコミットする場合は何もしない
+- `docs/` など、`frontend/` の外のファイルだけをコミットする場合は何もしない
 
 一時的にフックを飛ばしたいときは、環境変数を付けてコミットする。
 

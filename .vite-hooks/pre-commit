@@ -1,1 +1,1 @@
-cd vite-plus-react && vp staged
+cd frontend && vp staged

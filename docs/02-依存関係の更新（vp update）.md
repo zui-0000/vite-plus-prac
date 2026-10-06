@@ -76,7 +76,7 @@ TS/npm で言えば、`vp update -L` は `npx npm-check-updates -u` と依存関
 
 ## 実行結果（このリポジトリ、2026-10-07）
 
-`vite-plus-react/` で `vp update` を実行した結果の `package.json` の差分:
+`frontend/` で `vp update` を実行した結果の `package.json` の差分:
 
 | パッケージ             | 変更前     | 変更後     |
 | ---------------------- | ---------- | ---------- |
@@ -204,7 +204,7 @@ Gradle で言えば、catalog は Version Catalog（`libs.versions.toml`）と�
 
 ## 関連: プロジェクトの中では npm コマンドが拒否される
 
-`vite-plus-react/` の中で `npm view react` を実行すると、次のエラーになる。
+`frontend/` の中で `npm view react` を実行すると、次のエラーになる。
 
 ```text
 npm error EBADDEVENGINES Invalid devEngines.packageManager
