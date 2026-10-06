@@ -1,4 +1,4 @@
-# vite-plus-research
+# vite-plus-prac
 
 [Vite+](https://viteplus.dev/)（`vp`）1.0 を検証するためのリポジトリ。Vite+ で構築したフロントエンドと、調査の過程で分かったことをまとめたドキュメントを置いている。
 
