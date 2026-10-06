@@ -191,11 +191,46 @@ export default defineConfig({
   import { describe, expect, it } from "vite-plus/test";
   ```
 
-- テンプレートにテストの雛形は含まれていない。React コンポーネントのテストは、次の構成で動作を確認した
-  - `vp add -D @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom`
-  - `vite.config.ts` に `test: { environment: "jsdom" }` を追加
-  - テストファイルの先頭で `import "@testing-library/jest-dom/vitest"`
+- テンプレートにテストの雛形は含まれていない
 - `vp test` はデフォルトでは watch モードにならない（Vitest 単体とは逆）。watch したいときは `vp test watch` を使う
+
+### React コンポーネントのテスト環境（`vite-plus-react/` で構築済み）
+
+```bash
+vp add -D @testing-library/react @testing-library/dom @testing-library/jest-dom @testing-library/user-event jsdom
+```
+
+- `@testing-library/react` 16 系から、`@testing-library/dom` は peer 依存になった。公式の案内に従って明示的にインストールする
+
+`vite.config.ts`:
+
+```ts
+test: {
+  environment: "jsdom",
+  setupFiles: ["./src/__vitest__/setup.ts"],
+},
+```
+
+`src/__vitest__/setup.ts`:
+
+```ts
+import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vite-plus/test";
+
+afterEach(() => {
+  cleanup();
+});
+```
+
+- `jest-dom/vitest` を setup ファイルで 1 回だけ import すると、全テストで `toBeInTheDocument()` などが使える
+- setup ファイルを `src/` の下に置くのは、`tsconfig.app.json` の `include: ["src"]` に入れるため。こうすると jest-dom の型拡張が型チェックで認識される
+
+**なぜ `cleanup` を手動で登録するのか**: Testing Library は、グローバルに `afterEach` があるときだけ、テストごとに DOM を自動で片付ける。Vite+ では `vite-plus/test` から API を import する方式で、グローバルは使わない（`globals: false`）。そのため自動の片付けが働かない。
+
+検証として、cleanup を外した状態で「1 つ目のテストで描画 → 2 つ目のテストの開始時に `document.body` を確認」というテストを実行した。結果、`globalThis.afterEach` は `undefined` で、1 つ目の DOM（`<div><p>first</p></div>`）が残っていた。cleanup を登録すると空になった。
+
+DOM が残っていても、テストの書き方によっては通ってしまう（例: `name: "Count is 0"` で探すと、新しく描画した要素だけが見つかる）。そのため、テストが通っていても気づきにくい点に注意する。
 
 ### 動作確認の結果
 
@@ -204,7 +239,8 @@ export default defineConfig({
 ## 3. 最新の TypeScript → できる（ただしテンプレートからは手動で上げる）
 
 - create-vite の `react-ts` テンプレートでは `typescript: ~6.0.2` が入る
-- `vp add -D typescript@^7.0.2` で 7 系に上げても、`tsc -b`（`build` スクリプト）と `vp check` の両方が成功した。わざと型エラーを入れると、どちらでも検出された
+- 7 系に上げても、`tsc -b`（`build` スクリプト）と `vp check` の両方が成功した。わざと型エラーを入れると、どちらでも検出された
+- `vite-plus-react/` では `vp update -L typescript` で上げた（`~7.0.2` になる）。`^` ではなく `~` のまま上げる理由は `02-依存関係の更新（vp update）.md` を参照
 - 生成される tsconfig（`moduleResolution: bundler`、`erasableSyntaxOnly` など）は、もともと TS 6/7 で非推奨になった設定を使っていないので、変更なしで通った
 
 **なぜ型チェックは TS のバージョンとあまり関係ないのか**: `vp check` の型チェックは、Vite+ に同梱されている tsgolint（TypeScript 7 = TypeScript Go がベース）で動く。そのため、プロジェクトに入れた `typescript` パッケージのバージョンとは独立している。プロジェクト側の `typescript` が実際に使われるのは、`build` スクリプトの `tsc -b` とエディタくらい。
