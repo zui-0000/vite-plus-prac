@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
+    "types": ["vite/client", "vite-plus/test/globals"]
+  },
+  "include": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/__vitest__"],
+  "exclude": []
+}

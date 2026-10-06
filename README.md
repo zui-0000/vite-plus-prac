@@ -24,3 +24,4 @@
 
 - [docs/01 Vite+ 1.0 でできること](docs/01-vite-plus-1.0でできること.md): Vite+ 1.0 の調査メモ。Node.js / pnpm の管理、lint・format・test、TypeScript 7、Git フックについて
 - [docs/02 依存関係の更新（vp update）](docs/02-依存関係の更新（vp%20update）.md): `vp update` / `vp outdated` の使い分けと、catalog の仕組み
+- [docs/03 tsconfig・エイリアス・Vitest のグローバル API](docs/03-tsconfig・エイリアス・Vitest%20のグローバル%20API.md): TypeScript 7 向けの tsconfig、`~` エイリアス、テスト API を import せずに使う設定について

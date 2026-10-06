@@ -185,12 +185,13 @@ export default defineConfig({
 ### Vitest について
 
 - `vp test` に組み込まれている（Vitest 5.0.1）。`vitest` を直接インストールする必要はない
-- テストコードの import は `vite-plus/test` から行う
+- テスト API を import する場合は、`vitest` ではなく `vite-plus/test` から import する（`vitest` から import すると、lint の `vite-plus/prefer-vite-plus-imports` でエラーになる）
 
   ```ts
-  import { describe, expect, it } from "vite-plus/test";
+  import { describe, expect, test } from "vite-plus/test";
   ```
 
+- `vite-plus-react/` では `test.globals: true` にして、import せずに使う構成にした（詳細は `03-tsconfig・エイリアス・Vitest のグローバル API.md`）
 - テンプレートにテストの雛形は含まれていない
 - `vp test` はデフォルトでは watch モードにならない（Vitest 単体とは逆）。watch したいときは `vp test watch` を使う
 
@@ -206,6 +207,7 @@ vp add -D @testing-library/react @testing-library/dom @testing-library/jest-dom 
 
 ```ts
 test: {
+  globals: true,
   environment: "jsdom",
   setupFiles: ["./src/__vitest__/setup.ts"],
 },
@@ -215,6 +217,16 @@ test: {
 
 ```ts
 import "@testing-library/jest-dom/vitest";
+```
+
+- `jest-dom/vitest` を setup ファイルで 1 回だけ import すると、全テストで `toBeInTheDocument()` などが使える
+- setup ファイルとテストファイルは `tsconfig.test.json` で型チェックされる。こうすると jest-dom の型拡張が型チェックで認識される
+
+#### `globals: false`（既定）のときは `cleanup` を手動で登録する必要がある
+
+最初は `globals: false`（既定）で構築したため、setup ファイルに次の処理を入れていた。
+
+```ts
 import { cleanup } from "@testing-library/react";
 import { afterEach } from "vite-plus/test";
 
@@ -223,14 +235,13 @@ afterEach(() => {
 });
 ```
 
-- `jest-dom/vitest` を setup ファイルで 1 回だけ import すると、全テストで `toBeInTheDocument()` などが使える
-- setup ファイルを `src/` の下に置くのは、`tsconfig.app.json` の `include: ["src"]` に入れるため。こうすると jest-dom の型拡張が型チェックで認識される
-
-**なぜ `cleanup` を手動で登録するのか**: Testing Library は、グローバルに `afterEach` があるときだけ、テストごとに DOM を自動で片付ける。Vite+ では `vite-plus/test` から API を import する方式で、グローバルは使わない（`globals: false`）。そのため自動の片付けが働かない。
+**理由**: Testing Library は、グローバルに `afterEach` があるときだけ、テストごとに DOM を自動で片付ける。`globals: false` では `afterEach` がグローバルに存在しないので、自動の片付けが働かない。
 
 検証として、cleanup を外した状態で「1 つ目のテストで描画 → 2 つ目のテストの開始時に `document.body` を確認」というテストを実行した。結果、`globalThis.afterEach` は `undefined` で、1 つ目の DOM（`<div><p>first</p></div>`）が残っていた。cleanup を登録すると空になった。
 
 DOM が残っていても、テストの書き方によっては通ってしまう（例: `name: "Count is 0"` で探すと、新しく描画した要素だけが見つかる）。そのため、テストが通っていても気づきにくい点に注意する。
+
+その後 `globals: true` に切り替えたので、手動の `cleanup` は削除した。`afterEach` がグローバルに存在するようになり、Testing Library が自動で片付けを登録する（同じ検証テストで、DOM が空になることを確認済み）。
 
 ### 動作確認の結果
 
@@ -242,6 +253,7 @@ DOM が残っていても、テストの書き方によっては通ってしま�
 - 7 系に上げても、`tsc -b`（`build` スクリプト）と `vp check` の両方が成功した。わざと型エラーを入れると、どちらでも検出された
 - `vite-plus-react/` では `vp update -L typescript` で上げた（`~7.0.2` になる）。`^` ではなく `~` のまま上げる理由は `02-依存関係の更新（vp update）.md` を参照
 - 生成される tsconfig（`moduleResolution: bundler`、`erasableSyntaxOnly` など）は、もともと TS 6/7 で非推奨になった設定を使っていないので、変更なしで通った
+- その後、TS 7 の推奨設定に合わせて tsconfig を調整した（詳細は `03-tsconfig・エイリアス・Vitest のグローバル API.md`）
 
 **なぜ型チェックは TS のバージョンとあまり関係ないのか**: `vp check` の型チェックは、Vite+ に同梱されている tsgolint（TypeScript 7 = TypeScript Go がベース）で動く。そのため、プロジェクトに入れた `typescript` パッケージのバージョンとは独立している。プロジェクト側の `typescript` が実際に使われるのは、`build` スクリプトの `tsc -b` とエディタくらい。
 

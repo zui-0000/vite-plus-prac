@@ -1,3 +1,4 @@
+import path from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig, lazyPlugins } from "vite-plus";
 
@@ -30,7 +31,13 @@ export default defineConfig({
       },
     ],
   },
+  resolve: {
+    alias: {
+      "~": path.resolve(import.meta.dirname, "src"),
+    },
+  },
   test: {
+    globals: true,
     environment: "jsdom",
     setupFiles: ["./src/__vitest__/setup.ts"],
   },

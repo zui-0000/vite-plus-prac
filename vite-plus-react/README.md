@@ -112,15 +112,11 @@ vp -C vite-plus-react check
 
 このプロジェクトの `build` スクリプトは `tsc -b && vp build` なので、`vp run build` は型チェックをしてからビルドする。一方、`vp build` は Vite のビルドだけを行い、型チェックはしない。本番用のビルドには `vp run build` を使う。
 
-### テストの書き方
+### テストの設定
 
-テストの API は `vitest` ではなく `vite-plus/test` から import する（`vitest` から import すると lint でエラーになる）。
-
-```ts
-import { describe, expect, test } from "vite-plus/test";
-```
-
-React コンポーネントのテストには Testing Library と jsdom を使っている。設定は `vite.config.ts` の `test` ブロックと `src/__vitest__/setup.ts` にある。
+- `describe`・`test`・`expect` などのテスト API はグローバルに有効になっているので、import せずに使える（`vite.config.ts` の `test.globals`）
+- テストファイル（`*.test.ts(x)`）と `src/__vitest__/` は、`tsconfig.test.json` で型チェックされる
+- React コンポーネントのテストには Testing Library と jsdom を使っている。設定は `vite.config.ts` の `test` ブロックと `src/__vitest__/setup.ts` にある
 
 ## コミット時に自動で実行されること
 
@@ -156,3 +152,4 @@ VS Code では、リポジトリのルートではなく**このフォルダ（`
 
 - [docs/01 Vite+ 1.0 でできること](../docs/01-vite-plus-1.0でできること.md): Vite+ 1.0 の調査メモ。Node.js / pnpm の管理、lint・format・test、TypeScript 7、Git フックについて
 - [docs/02 依存関係の更新（vp update）](../docs/02-依存関係の更新（vp%20update）.md): `vp update` / `vp outdated` の使い分けと、catalog の仕組み
+- [docs/03 tsconfig・エイリアス・Vitest のグローバル API](../docs/03-tsconfig・エイリアス・Vitest%20のグローバル%20API.md): TypeScript 7 向けの tsconfig、`~` エイリアス、テスト API を import せずに使う設定について
