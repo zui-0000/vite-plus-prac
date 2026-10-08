@@ -1,0 +1,13 @@
+{
+  "folders": [
+    { "name": "vite-plus-prac", "path": "." },
+    // frontend をワークスペースのフォルダにすると、Oxc 拡張機能が frontend/node_modules の vite-plus を見つけられる
+    { "name": "frontend", "path": "frontend" }
+  ],
+  "settings": {
+    // ルート側の一覧からは frontend を隠し、frontend フォルダ側で扱う（一覧と検索結果の重複を防ぐ）
+    "files.exclude": {
+      "frontend": true
+    }
+  }
+}
