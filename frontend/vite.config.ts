@@ -55,7 +55,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
-    setupFiles: ["./src/__vitest__/setup.ts"],
+    setupFiles: ["./src/__setup__/setup.ts"],
   },
   plugins: lazyPlugins(() => [react({ compiler: true })]),
 });
