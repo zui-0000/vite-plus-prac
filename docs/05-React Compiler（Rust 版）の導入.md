@@ -17,7 +17,7 @@ plugins: lazyPlugins(() => [react({ compiler: true })]),
 
 - 有効になったかどうかは、開発サーバーが変換した後のコードに `_c(...)` が入っているかで確かめる
 - `oxc-transform-react` だけを単独で上げない。plugin-react が受け付けるバージョンの範囲に縛られている
-- Compiler は、ルールに違反したコンポーネントを**エラーを出さずにスキップする**。`vp check` / `vp lint` の warning で気づける
+- Compiler は、ルールに違反したコンポーネントを**エラーを出さずにスキップする**。そのため、React Compiler 系の lint ルールを error にして、コミット時に止まるようにした
 
 ## React Compiler とは
 
@@ -170,18 +170,73 @@ export function Good({ name }: { name: string }) {
 
 README によると、`logDiagnostics` が出すのは「回復できる」問題（スキップで済むもの）で、既定は `false`。変換そのものができない致命的な問題は、設定に関係なく常にログに出て、変換が失敗する。
 
-### `vp check` / `vp lint` でも気づける
+## React Compiler 系の lint ルールを error にする
 
-同じファイルに `vp check` を実行すると、Oxlint の `react/refs` ルールが warning を出す。
+### 既定では warning なのでコミットが止まらない
+
+上の `Bad` に `vp check` を実行すると、Oxlint の `react/refs` ルールが warning を出す。
 
 ```text
 warning react(refs): Cannot access refs during render
   note: React Compiler skipped optimizing this component or hook.
 ```
 
-- `react/refs` は、React 公式の `eslint-plugin-react-hooks` にある [`react-hooks/refs`](https://react.dev/reference/eslint-plugin-react-hooks/lints/refs) を Oxlint に移植したルール。中で React Compiler を使って解析している
-- warning なので、`vp check` は成功扱い（終了コード 0）になる。つまり、**コミット時の `vp staged` ではコミットは止まらない**
-- 開発中に `vp check` の warning を見るか、`logDiagnostics: true` にしておけば、スキップに気づける
+`react/refs` は、React 公式の `eslint-plugin-react-hooks` にある [`react-hooks/refs`](https://react.dev/reference/eslint-plugin-react-hooks/lints/refs) を Oxlint に移植したルール。中で React Compiler（Rust 版）を使って解析している。
+
+ただし warning なので、`vp check` は成功扱い（終了コード 0）になる。つまり、コミット時の `vp staged` ではコミットが止まらず、**Compiler にスキップされるコードがそのままコミットされてしまう**。そこで、React Compiler 系のルールを `vite.config.ts` で error にした。
+
+### error にしたルール
+
+React 公式の `eslint-plugin-react-hooks` 7.1.1 の `recommended` プリセットに入っている React Compiler 系のルールのうち、Oxlint 1.85 にある 12 個をすべて error にした。
+
+| ルール                              | 内容                                                        | 公式の recommended | このリポジトリ |
+| ----------------------------------- | ----------------------------------------------------------- | ------------------ | -------------- |
+| `react/error-boundaries`            | 子のエラーを try/catch ではなく Error Boundary で扱う       | error              | error          |
+| `react/globals`                     | レンダリング中にグローバル変数を書き換えない                | error              | error          |
+| `react/immutability`                | props や state などを書き換えない                           | error              | error          |
+| `react/incompatible-library`        | メモ化と相性の悪いライブラリを使わない                      | **warn**           | error          |
+| `react/preserve-manual-memoization` | 手書きの `useMemo` / `useCallback` を Compiler が保てること | error              | error          |
+| `react/purity`                      | レンダリング中に `Date.now()` などの不純な関数を呼ばない    | error              | error          |
+| `react/refs`                        | レンダリング中に `ref.current` を読み書きしない             | error              | error          |
+| `react/set-state-in-effect`         | effect の中で同期的に setState しない                       | error              | error          |
+| `react/set-state-in-render`         | レンダリング中に setState しない                            | error              | error          |
+| `react/static-components`           | レンダリングのたびにコンポーネントを作り直さない            | error              | error          |
+| `react/unsupported-syntax`          | Compiler が対応していない構文を使わない                     | **warn**           | error          |
+| `react/use-memo`                    | 値を返さない `useMemo` を書かない                           | error              | error          |
+
+```ts
+// vite.config.ts の lint.rules（抜粋）
+"react/refs": "error",
+"react/purity": "error",
+// ...
+```
+
+- 公式の重さは、`eslint-plugin-react-hooks` 7.1.1 のパッケージの中身（各ルールの `severity` と `preset`）で確かめた
+- 公式の `recommended` にある `component-hook-factories`・`config`・`gating` は、Oxlint 1.85 には無い（`vite.config.ts` に書くと `Rule '...' not found in plugin 'react'` というエラーになる）
+- Oxlint には、ほかにも React Compiler を使うルール（`react/hooks`、`react/memo-dependencies` など）があるが、公式の `recommended` に入っていないので設定していない
+
+**なぜ公式より厳しくしたのか**: 公式では `incompatible-library` と `unsupported-syntax` が warn になっている。しかし、どちらも違反すると Compiler がそのコンポーネントの最適化をスキップする。「Compiler にスキップされるコードをコミットさせない」という目的に合わせて、この 2 つも error にした。ただし `incompatible-library` は、自分のコードではなく、使っているライブラリ側の都合で出るルール。そういうライブラリを入れて困ったら、そのときに warn へ戻すかを考える。
+
+Oxlint のルール名は `vp lint --rules` では表示されなかった（出力が空）。そのため、`vite.config.ts` に 1 つずつ書いて、エラーにならないかで存在を確かめた。CLI の `-D react/<名前>` は、存在しないルール名でもエラーにならないので確認には使えない。
+
+### 確かめた結果
+
+違反を含む一時ファイルを作り、pre-commit と同じ `vp check --fix` を実行した（確認後に削除済み）。
+
+| 書いたコード                                  | 結果                                  |
+| --------------------------------------------- | ------------------------------------- |
+| レンダリング中に `ref.current += 1`           | `react(refs)` の error                |
+| レンダリング中に `Date.now()`                 | `react(purity)` の error              |
+| レンダリング中に `setCount(1)`                | `react(set-state-in-render)` の error |
+| `useEffect` の中で同期的に `setCount(1)`      | `react(set-state-in-effect)` の error |
+| `props.count = 1`（props への代入）           | `react(immutability)` の error        |
+| `props.items.push("x")`（props の配列に追加） | **検出されなかった**                  |
+| `items.push("x")`（state の配列に追加）       | **検出されなかった**                  |
+| ルールを守ったコンポーネント                  | 何も出ない                            |
+
+- error があると `vp check --fix` の終了コードが 1 になるので、コミットが止まる
+- 今の `frontend/` のコードは、すべてのルールを満たしている（`vp check` が成功する）
+- `push` のようなメソッド呼び出しによる書き換えは、Oxlint 1.85 の `react/immutability` では検出されなかった。lint を通っても、ルール違反が無いとは限らない
 
 ## バージョンを上げるとき
 
@@ -200,3 +255,4 @@ plugin-react の新しいバージョンが出たら、次の手順で一緒に�
 - [React Compiler](https://react.dev/learn/react-compiler)
 - [React Compiler の設定](https://react.dev/reference/react-compiler/configuration)
 - [Oxlint の react/refs ルール](https://oxc.rs/docs/guide/usage/linter/rules/react/refs.html)
+- [eslint-plugin-react-hooks のルール一覧](https://react.dev/reference/eslint-plugin-react-hooks)
