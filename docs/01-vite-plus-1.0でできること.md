@@ -35,6 +35,8 @@ Vite+ 1.0 に同梱されているツールのバージョン（`vp toolchain` �
 
 `vp` 1.0 自体は Node.js `^22.18.0 || ^24.11.0 || >=26.0.0` を必要とする。
 
+> その後、2026-10-12 に Vite+ 1.1.0・pnpm 12.11.2 へ更新した（`06-Vite+ 1.1.0・pnpm 12.11.2 へのアップグレード.md` を参照）。
+
 ## 1. mise なしで Node.js / pnpm を管理できるか → できる
 
 `vp env` がこの役割を担う。mise と同じように shim を使う方式。
@@ -209,11 +211,11 @@ vp add -D @testing-library/react @testing-library/dom @testing-library/jest-dom 
 test: {
   globals: true,
   environment: "jsdom",
-  setupFiles: ["./src/__vitest__/setup.ts"],
+  setupFiles: ["./src/__setup__/setup.ts"],
 },
 ```
 
-`src/__vitest__/setup.ts`:
+`src/__setup__/setup.ts`:
 
 ```ts
 import "@testing-library/jest-dom/vitest";

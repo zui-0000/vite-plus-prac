@@ -164,7 +164,7 @@ describe("App", () => { ... });
 test: {
   globals: true,
   environment: "jsdom",
-  setupFiles: ["./src/__vitest__/setup.ts"],
+  setupFiles: ["./src/__setup__/setup.ts"],
 },
 ```
 
@@ -173,7 +173,7 @@ test: {
 ```text
 tsconfig.json          … 下の 3 つを参照するだけ（files: []）
 ├── tsconfig.app.json  … アプリのコード（src/ からテストを除いたもの）
-├── tsconfig.test.json … テストファイルと src/__vitest__/（グローバル API の型あり）
+├── tsconfig.test.json … テストファイルと src/__setup__/（グローバル API の型あり）
 └── tsconfig.node.json … vite.config.ts
 ```
 
@@ -186,7 +186,7 @@ tsconfig.json          … 下の 3 つを参照するだけ（files: []）
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
     "types": ["vite/client", "vite-plus/test/globals"]
   },
-  "include": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/__vitest__"],
+  "include": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/__setup__"],
   "exclude": []
 }
 ```

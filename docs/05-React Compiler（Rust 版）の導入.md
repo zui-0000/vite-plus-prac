@@ -1,6 +1,6 @@
 # React Compiler（Rust 版）の導入
 
-記録日: 2026-10-12 / 対象: `@vitejs/plugin-react@6.1.2`、`oxc-transform-react@0.152.0`、React 19.3.0、`vite-plus@1.0.0`
+記録日: 2026-10-12 / 対象: `@vitejs/plugin-react@6.1.2`、`oxc-transform-react@0.152.0`、React 19.3.0、`vite-plus@1.0.0`（lint ルールは `vite-plus@1.1.0`（Oxlint 1.87）でも確認）
 
 `frontend/` で React Compiler を有効にした。有効にする方法は 2 つあり、このリポジトリは検証用なので、実験的な Rust 版を選んだ。方法の違いと、有効になっていることの確かめ方をまとめる。
 
@@ -187,7 +187,7 @@ warning react(refs): Cannot access refs during render
 
 ### error にしたルール
 
-React 公式の `eslint-plugin-react-hooks` 7.1.1 の `recommended` プリセットに入っている React Compiler 系のルールのうち、Oxlint 1.85 にある 12 個をすべて error にした。
+React 公式の `eslint-plugin-react-hooks` 7.1.1 の `recommended` プリセットに入っている React Compiler 系のルールのうち、Oxlint にある 12 個をすべて error にした（Oxlint 1.85 と 1.87 で確認）。
 
 | ルール                              | 内容                                                        | 公式の recommended | このリポジトリ |
 | ----------------------------------- | ----------------------------------------------------------- | ------------------ | -------------- |
@@ -212,7 +212,7 @@ React 公式の `eslint-plugin-react-hooks` 7.1.1 の `recommended` プリセッ
 ```
 
 - 公式の重さは、`eslint-plugin-react-hooks` 7.1.1 のパッケージの中身（各ルールの `severity` と `preset`）で確かめた
-- 公式の `recommended` にある `component-hook-factories`・`config`・`gating` は、Oxlint 1.85 には無い（`vite.config.ts` に書くと `Rule '...' not found in plugin 'react'` というエラーになる）
+- 公式の `recommended` にある `component-hook-factories`・`config`・`gating` は、Oxlint 1.85・1.87 には無い（`vite.config.ts` に書くと `Rule '...' not found in plugin 'react'` というエラーになる）
 - Oxlint には、ほかにも React Compiler を使うルール（`react/hooks`、`react/memo-dependencies` など）があるが、公式の `recommended` に入っていないので設定していない
 
 **なぜ公式より厳しくしたのか**: 公式では `incompatible-library` と `unsupported-syntax` が warn になっている。しかし、どちらも違反すると Compiler がそのコンポーネントの最適化をスキップする。「Compiler にスキップされるコードをコミットさせない」という目的に合わせて、この 2 つも error にした。ただし `incompatible-library` は、自分のコードではなく、使っているライブラリ側の都合で出るルール。そういうライブラリを入れて困ったら、そのときに warn へ戻すかを考える。
@@ -223,20 +223,22 @@ Oxlint のルール名は `vp lint --rules` では表示されなかった（出
 
 違反を含む一時ファイルを作り、pre-commit と同じ `vp check --fix` を実行した（確認後に削除済み）。
 
-| 書いたコード                                  | 結果                                  |
-| --------------------------------------------- | ------------------------------------- |
-| レンダリング中に `ref.current += 1`           | `react(refs)` の error                |
-| レンダリング中に `Date.now()`                 | `react(purity)` の error              |
-| レンダリング中に `setCount(1)`                | `react(set-state-in-render)` の error |
-| `useEffect` の中で同期的に `setCount(1)`      | `react(set-state-in-effect)` の error |
-| `props.count = 1`（props への代入）           | `react(immutability)` の error        |
-| `props.items.push("x")`（props の配列に追加） | **検出されなかった**                  |
-| `items.push("x")`（state の配列に追加）       | **検出されなかった**                  |
-| ルールを守ったコンポーネント                  | 何も出ない                            |
+| 書いたコード                                  | 結果                                                           |
+| --------------------------------------------- | -------------------------------------------------------------- |
+| レンダリング中に `ref.current += 1`           | `react(refs)` の error                                         |
+| レンダリング中に `Date.now()`                 | `react(purity)` の error                                       |
+| レンダリング中に `new Date()`                 | `react(purity)` の error（1.87 で確認。1.85 では試していない） |
+| レンダリング中に `setCount(1)`                | `react(set-state-in-render)` の error                          |
+| `useEffect` の中で同期的に `setCount(1)`      | `react(set-state-in-effect)` の error                          |
+| `props.count = 1`（props への代入）           | `react(immutability)` の error                                 |
+| `props.items.push("x")`（props の配列に追加） | **検出されなかった**                                           |
+| `items.push("x")`（state の配列に追加）       | **検出されなかった**                                           |
+| ルールを守ったコンポーネント                  | 何も出ない                                                     |
 
 - error があると `vp check --fix` の終了コードが 1 になるので、コミットが止まる
 - 今の `frontend/` のコードは、すべてのルールを満たしている（`vp check` が成功する）
-- `push` のようなメソッド呼び出しによる書き換えは、Oxlint 1.85 の `react/immutability` では検出されなかった。lint を通っても、ルール違反が無いとは限らない
+- `new Date()` は、Oxlint 1.86 で「引数なしの `new Date()` を不純な関数として扱う」変更が入っている。1.86 より前では検出されなかったと考えられる（[1.86.0 のリリースノート](https://github.com/oxc-project/oxc/releases/tag/oxlint_v1.86.0)）
+- `push` のようなメソッド呼び出しによる書き換えは、Oxlint 1.85・1.87 の `react/immutability` では検出されなかった。lint を通っても、ルール違反が無いとは限らない
 
 ## バージョンを上げるとき
 
