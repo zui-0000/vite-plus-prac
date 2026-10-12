@@ -112,3 +112,4 @@ VP_GIT_HOOKS=0 git commit -m "..."
 - [docs/02 依存関係の更新（vp update）](../docs/02-依存関係の更新（vp%20update）.md): `vp update` / `vp outdated` の使い分けと、catalog の仕組み
 - [docs/03 tsconfig・エイリアス・Vitest のグローバル API](../docs/03-tsconfig・エイリアス・Vitest%20のグローバル%20API.md): TypeScript 7 向けの tsconfig、`~` エイリアス、テスト API を import せずに使う設定について
 - [docs/04 vp install と pnpm の関係](../docs/04-vp%20install%20と%20pnpm%20の関係.md): `vp install` が中で pnpm を実行する仕組みと、`pnpm install` を直接実行しない理由
+- [docs/05 React Compiler（Rust 版）の導入](../docs/05-React%20Compiler（Rust%20版）の導入.md): `oxc-transform-react` で React Compiler を有効にする方法と、Babel 版との違い、有効になっているかの確かめ方
