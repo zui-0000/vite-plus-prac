@@ -18,6 +18,22 @@ export default defineConfig({
           allowConstantExport: true,
         },
       ],
+      // ----------------------------------------------------------------------
+      // React Compiler 系のルール。
+      // 違反があると Compiler が最適化をスキップするので error にする（docs/05 を参照）
+      // ----------------------------------------------------------------------
+      "react/error-boundaries": "error",
+      "react/globals": "error",
+      "react/immutability": "error",
+      "react/incompatible-library": "error",
+      "react/preserve-manual-memoization": "error",
+      "react/purity": "error",
+      "react/refs": "error",
+      "react/set-state-in-effect": "error",
+      "react/set-state-in-render": "error",
+      "react/static-components": "error",
+      "react/unsupported-syntax": "error",
+      "react/use-memo": "error",
       "vite-plus/prefer-vite-plus-imports": "error",
     },
     options: {
