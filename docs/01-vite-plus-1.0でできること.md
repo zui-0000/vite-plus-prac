@@ -136,6 +136,8 @@ The key "runtimeOnFail" isn't supported by the global config.yaml file
 runtimeOnFail: ignore
 ```
 
+> 追記（2026-10-13）: `runtimeOnFail: ignore` は、Node.js だけでなく Bun や Deno のダウンロードも止める（Vite+ のドキュメントにも書かれている）。Node.js のダウンロードだけを止めたいなら、`devEngines.runtime` の Node.js のエントリーの `onFail` を `"error"` にする方がよい。詳しくは `07-Vite+ のモノレポ構成（React + Hono + Bun）.md` の「Node.js のバージョンをどこに書くか」を参照。
+
 #### 別の方法: Node.js を `.node-version` で固定する
 
 pnpm が読むのは `package.json` の `devEngines.runtime`（と `engines.runtime`）だけで、`.node-version` は読まない。そのため、Node.js を `.node-version` で固定すれば、`runtimeOnFail` を設定しなくても pnpm は Node.js をダウンロードしない（検証済み。lockfile に `node@runtime` が入らず、スクリプト内の `node` も vp の Node.js になった）。
@@ -143,7 +145,7 @@ pnpm が読むのは `package.json` の `devEngines.runtime`（と `engines.runt
 | 固定方法                         | 固定される範囲                                      | pnpm の二重ダウンロード               |
 | -------------------------------- | --------------------------------------------------- | ------------------------------------ |
 | リポジトリのルートに `.node-version` | リポジトリ全体（親へさかのぼって探すので、サブディレクトリにも効く） | 起きない                             |
-| プロジェクトの `devEngines.runtime` | そのプロジェクトだけ                                | 起きる → `runtimeOnFail: ignore` が必要 |
+| プロジェクトの `devEngines.runtime` | そのプロジェクトだけ                                | 起きる → `onFail: "error"` にすれば防げる（上の追記を参照） |
 
 このリポジトリは研究用で、実験用のプロジェクトをサブディレクトリに並べる構成なので、ルートの `.node-version` で固定する方法が向いている。
 
