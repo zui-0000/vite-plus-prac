@@ -12,7 +12,7 @@ Node.js と pnpm は `vp` が自動で用意するので、事前にインスト
 curl -fsSL https://vite.plus | bash
 ```
 
-インストールが終わったら**新しいターミナルを開き**、次のコマンドでバージョンを確認する。1.0.0 以上になっていれば OK。
+インストールが終わったら**新しいターミナルを開き**、次のコマンドでバージョンを確認する。1.1.0 以上になっていれば OK。
 
 ```bash
 vp --version
@@ -43,11 +43,11 @@ Git フックの有効・無効は各 PC のローカル設定（`git config cor
 
 ```bash
 cd frontend
-vp env install   # Node.js 24.21.0 と pnpm 12.9.1 を入れる
+vp env install   # Node.js 24.21.0 と pnpm 12.11.2 を入れる
 vp install       # 依存関係をインストールする
 ```
 
-`vp install` は中で pnpm 12.9.1 の `pnpm install` を実行するので、`pnpm install` を別に実行する必要はない（詳細は [docs/04](../docs/04-vp%20install%20と%20pnpm%20の関係.md)）。
+`vp install` は中で pnpm 12.11.2 の `pnpm install` を実行するので、`pnpm install` を別に実行する必要はない（詳細は [docs/04](../docs/04-vp%20install%20と%20pnpm%20の関係.md)）。
 
 `.node-version` はリポジトリのルートにあるが、`vp` はカレントディレクトリから親ディレクトリへさかのぼって探すので、`frontend/` の中で実行してもルートの `.node-version` が使われる。一方、pnpm のバージョンはこのフォルダの `package.json` に書かれているので、`frontend/` の中でないと解決されない。
 
