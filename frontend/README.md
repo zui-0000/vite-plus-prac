@@ -47,6 +47,8 @@ vp env install   # Node.js 24.21.0 と pnpm 12.9.1 を入れる
 vp install       # 依存関係をインストールする
 ```
 
+`vp install` は中で pnpm 12.9.1 の `pnpm install` を実行するので、`pnpm install` を別に実行する必要はない（詳細は [docs/04](../docs/04-vp%20install%20と%20pnpm%20の関係.md)）。
+
 `.node-version` はリポジトリのルートにあるが、`vp` はカレントディレクトリから親ディレクトリへさかのぼって探すので、`frontend/` の中で実行してもルートの `.node-version` が使われる。一方、pnpm のバージョンはこのフォルダの `package.json` に書かれているので、`frontend/` の中でないと解決されない。
 
 > [!WARNING]
@@ -77,6 +79,7 @@ vp dev
 | 上記をまとめて自動修正           | `vp check --fix`                     | フォーマットと lint の自動修正をしてから型チェックする                     |
 | テストを実行する                 | `vp test`                            | 1 回実行して終了する                                                       |
 | テストを監視モードで実行する     | `vp test watch`                      | ファイルを保存するたびに再実行する                                         |
+| 依存関係をインストールする       | `vp install`                         | clone した直後や、`git pull` で lockfile が変わった後に実行する            |
 | パッケージを追加する             | `vp add <名前>` / `vp add -D <名前>` | `-D` は devDependencies に追加する                                         |
 | 更新できるパッケージを確認する   | `vp outdated`                        | 更新の方針は [docs/02](../docs/02-依存関係の更新（vp%20update）.md) を参照 |
 | パッケージを更新する             | `vp update`                          | `package.json` の範囲内で更新する                                          |
@@ -108,3 +111,4 @@ VP_GIT_HOOKS=0 git commit -m "..."
 - [docs/01 Vite+ 1.0 でできること](../docs/01-vite-plus-1.0でできること.md): Vite+ 1.0 の調査メモ。Node.js / pnpm の管理、lint・format・test、TypeScript 7、Git フックについて
 - [docs/02 依存関係の更新（vp update）](../docs/02-依存関係の更新（vp%20update）.md): `vp update` / `vp outdated` の使い分けと、catalog の仕組み
 - [docs/03 tsconfig・エイリアス・Vitest のグローバル API](../docs/03-tsconfig・エイリアス・Vitest%20のグローバル%20API.md): TypeScript 7 向けの tsconfig、`~` エイリアス、テスト API を import せずに使う設定について
+- [docs/04 vp install と pnpm の関係](../docs/04-vp%20install%20と%20pnpm%20の関係.md): `vp install` が中で pnpm を実行する仕組みと、`pnpm install` を直接実行しない理由
