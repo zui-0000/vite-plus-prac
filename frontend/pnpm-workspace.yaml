@@ -2,8 +2,8 @@
 # Vite+ がそろえる版。vp migrate が書き換えるので、手で版を変えない
 # ---------------------------------------------------------------------------
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@1.3.0
-  vite-plus: 1.3.0
+  vite: npm:@voidzero-dev/vite-plus-core@1.4.0
+  vite-plus: 1.4.0
 overrides:
   vite@*: "catalog:"
 
@@ -28,3 +28,14 @@ minimumReleaseAge: 2880
 
 # 前に公開された版より、公開の証明（trusted publishing・provenance）が弱い版は入れない
 trustPolicy: no-downgrade
+minimumReleaseAgeExclude:
+  - vite-plus
+  - "@voidzero-dev/*"
+  - oxlint
+  - "@oxlint/*"
+  - oxlint-tsgolint
+  - "@oxlint-tsgolint/*"
+  - oxfmt
+  - "@oxfmt/*"
+  - vitest
+  - "@vitest/*"
