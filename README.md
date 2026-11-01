@@ -7,6 +7,9 @@
 ```text
 .
 ├── .editorconfig                  # エディタ共通の書式設定（文字コード・改行・インデント）
+├── .github/
+│   └── workflows/
+│       └── auto-review.yml        # PR 作成時に自動でコメントのレビューを付ける
 ├── .node-version                  # Node.js のバージョン（リポジトリ全体に効く）
 ├── .vite-hooks/
 │   └── pre-commit                 # コミット前に実行する Git フック
@@ -15,14 +18,15 @@
 └── vite-plus-prac.code-workspace  # VS Code のワークスペース設定
 ```
 
-| パス                            | 内容                                                                                                                                    |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `frontend/`                     | フロントエンドのソース。**セットアップ手順と操作方法は [frontend/README.md](frontend/README.md) を参照**                                |
-| `docs/`                         | Vite+ を調査したときのメモ（下記「ドキュメント」を参照）                                                                                |
-| `.node-version`                 | Node.js のバージョン。`vp` は親ディレクトリへさかのぼって探すので、サブフォルダにも効く                                                 |
-| `.vite-hooks/pre-commit`        | コミット時に `frontend/` で `vp staged`（フォーマット・lint・型チェック）を実行する                                                     |
-| `.editorconfig`                 | エディタ共通の書式設定（UTF-8・LF・2 スペースインデント・1 行 100 文字）                                                                |
-| `vite-plus-prac.code-workspace` | VS Code のワークスペース設定。Oxc 拡張機能が `frontend/node_modules` の vite-plus を見つけられるよう、`frontend` を別フォルダとして開く |
+| パス                                | 内容                                                                                                                                    |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `frontend/`                         | フロントエンドのソース。**セットアップ手順と操作方法は [frontend/README.md](frontend/README.md) を参照**                                |
+| `docs/`                             | Vite+ を調査したときのメモ（下記「ドキュメント」を参照）                                                                                |
+| `.node-version`                     | Node.js のバージョン。`vp` は親ディレクトリへさかのぼって探すので、サブフォルダにも効く                                                 |
+| `.vite-hooks/pre-commit`            | コミット時に `frontend/` で `vp staged`（フォーマット・lint・型チェック）を実行する                                                     |
+| `.editorconfig`                     | エディタ共通の書式設定（UTF-8・LF・2 スペースインデント・1 行 100 文字）                                                                |
+| `vite-plus-prac.code-workspace`     | VS Code のワークスペース設定。Oxc 拡張機能が `frontend/node_modules` の vite-plus を見つけられるよう、`frontend` を別フォルダとして開く |
+| `.github/workflows/auto-review.yml` | PR 作成時に `github-actions[bot]` がコメント扱い（COMMENT）のレビューを投稿する。承認はしないので、マージの可否には影響しない           |
 
 ## ドキュメント
 
