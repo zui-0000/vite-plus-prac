@@ -15,6 +15,8 @@ vp update -L <パッケージ名>   # 3. メジャーバージョンの更新は
 - `vp update -L` を、パッケージを指定せずに全部へかけない（理由は後述）
 - Vite+ 本体（`vite` / `vite-plus`）は `vp update` ではなく、`vp upgrade` → `vp migrate` の順で更新する
 
+> 追記（2026-11-12）: 今はすべての依存を `pnpm-workspace.yaml` の catalog に固定の版で書き、`package.json` には `catalog:` と書いている。この文書の `^` / `~` の範囲の話は、固定にする前のもの（`08-Vite+ 1.6.0 への更新とフラット構成への移行.md` の「`pnpm-workspace.yaml` を ai-chat-prac に合わせた」を参照）。
+
 ## package.json のバージョン表記は「範囲」
 
 `package.json` に書かれているのは、**インストールしてよいバージョンの範囲**。インストールされているバージョンそのものではない。

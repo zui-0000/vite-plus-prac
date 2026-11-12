@@ -1,8 +1,8 @@
 # Vite+ 1.6.0 への更新とフラット構成への移行
 
-記録日: 2026-11-12 / 対象: `vite-plus` 1.4.0 → 1.6.0、Node.js 26.13.0 → 26.13.1、pnpm 12.16.1 → 12.18.0、`frontend/` → ルート、`.node-version` → `devEngines.runtime`、`minimumReleaseAge` 2 日 → 1 日
+記録日: 2026-11-12 / 対象: `vite-plus` 1.4.0 → 1.6.0、Node.js 26.13.0 → 26.13.1、pnpm 12.16.1 → 12.18.0、`frontend/` → ルート、`.node-version` → `devEngines.runtime`、`pnpm-workspace.yaml` の設定
 
-次の 5 つの変更をまとめて行った。手順と、それぞれの理由を残す。
+次の 6 つの変更をまとめて行った。手順と、それぞれの理由を残す。
 
 ## まとめ
 
@@ -26,6 +26,7 @@ vp update -L @types/node   # Node.js 26 に合わせて ^24 → ^26
 - `pnpm-workspace.yaml` の `minimumReleaseAge` を 2880 分（2 日）から 1440 分（1 日）にした
 - Node.js を 26 系 LTS の最新（26.13.1）に、pnpm を `latest` の 12.18.0 にした
 - `@types/node` を `^24.19.2` から `^26.6.6` にして、Node.js 本体とメジャーバージョンを揃えた
+- `pnpm-workspace.yaml` を ai-chat-prac に合わせた（依存の版を catalog に固定で書く、`pmOnFail: ignore`、`minimumReleaseAgeExclude` を消す）
 - 更新後に `vp check` / `vp test` / `vp run build` が成功し、Git フックも動くことを確かめた
 
 **docs/01〜07 を読むときの注意**: 01〜07 に出てくる `frontend/` のパスは、今はルートにある（例: `frontend/vite.config.ts` → `vite.config.ts`）。01〜07 は書いた時点の記録として残し、パスは書き換えていない。
@@ -132,7 +133,7 @@ minimumReleaseAge: 1440
 
 **既定値と同じなのに、消さずに書いている理由**: 自分で `minimumReleaseAge` を書くと、厳格モード（`minimumReleaseAgeStrict`）が有効になる。書かずに既定値に任せると厳格モードはオフで、条件を満たす版が無いときは新しい版を黙って入れ、その例外を `minimumReleaseAgeExclude` に書き足してしまう（docs/07 の「その他気づいたこと」を参照）。書いておけば、条件を満たさないときにエラーで止まる。
 
-なお、`minimumReleaseAgeExclude` に入っている `vite-plus` などの Vite+ 関連のパッケージは、この待ち時間の対象外。
+最初は `minimumReleaseAgeExclude` に `vite-plus` などの Vite+ の道具が入っていて、この待ち時間の対象外になっていた。後で消した（下の「`pnpm-workspace.yaml` を ai-chat-prac に合わせた」を参照）。
 
 ## Node.js 26.13.1・pnpm 12.18.0
 
@@ -163,6 +164,41 @@ minimumReleaseAge: 1440
 Node.js 本体は 26.13.0 にした時点（2026-11-01）で 26 系になっていたが、`@types/node` は `^24.19.2` のままだった。docs/02 の「`@types/node` は Node.js 本体のメジャーバージョンに合わせる」に従い、`vp update -L @types/node` で `^26.6.6`（`latest` タグ）にした。
 
 型と本体がずれていると、困ることがある。型が古いと、26 で増えた API を使ったときに型エラーになる。型が新しすぎると、本体に無い API でも型チェックを通ってしまう。
+
+## `pnpm-workspace.yaml` を ai-chat-prac に合わせた
+
+ai-chat-prac の `pnpm-workspace.yaml` と、その設定を決めた経緯（ai-chat-prac の docs/01「pnpm と依存の設定」）を参考にした。
+
+| 設定                                    | 変更                                   | 理由                                                                                         |
+| --------------------------------------- | -------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `catalogMode: prefer`                   | 追加                                   | `vp add` で足した依存の版が catalog に入り、`package.json` には `catalog:` と書かれる          |
+| `savePrefix: ""`                        | 追加                                   | `vp add` で `-E` を付けなくても、`^` の無い固定の版で書かれる                                  |
+| `catalog`                               | すべての依存を固定の版で書いた         | 版が動くのを、自分で上げたときだけにする（下で説明）                                         |
+| `pmOnFail: ignore`                      | 追加                                   | pnpm の版は Vite+ が `devEngines.packageManager` を見て決める。pnpm 自身には切り替えさせない  |
+| `minimumReleaseAgeExclude`              | 消した                                 | `vp migrate` が勝手に足したもの。Vite+ の道具も、公開から 1 日たった版だけを入れる             |
+
+持ってこなかった設定: `packages`（モノレポ用）、`allowBuilds`（インストール時にスクリプトを動かす依存が無い）、`trustPolicyExclude`（ai-chat-prac の tsrs だけの例外）。
+
+### catalog に固定の版で書く
+
+`package.json` の依存はすべて `catalog:` にし、版は `pnpm-workspace.yaml` の catalog に `^` / `~` の無い固定の版で書いた。
+
+```yaml
+catalog:
+  react: 19.3.1
+  typescript: 7.0.2
+  # ...
+```
+
+実際に入る版は、範囲でも固定でも lockfile が決める。違いが出るのは、`vp update` や `autoDedupe` で lockfile を書き直すとき。範囲だと、その範囲の中で版が勝手に動く。このリポジトリは npm に公開するライブラリではない（`private: true`）ので、範囲で書いて使う側に幅を持たせる必要がない。固定にしておけば、版が動くのは自分で上げたときだけになり、そのときに `minimumReleaseAge` と `trustPolicy` がかかる。
+
+TS/npm で言えば、`npm config set save-exact true` にして、版を 1 か所（catalog）にまとめたもの。docs/02 の「TypeScript が `^` ではなく `~` になっている理由」は、固定にしたことで気にしなくてよくなった（パッチ更新も自分で上げたときだけ入る）。
+
+書いた版は、そのときの lockfile に記録されていた版と同じにした。どれも `package.json` の範囲の下限と同じだったので、入る版は 1 つも変わっていない（lockfile の `packages` の版に差分が無いことを確かめた）。
+
+### `minimumReleaseAgeExclude` を消しても止まらない
+
+`node_modules` を消して `vp install` し直し、Vite+ の道具も含めて 1 日の待ち時間で止まらないことを確かめた。`vp migrate` を実行した後にまた足されていたら消す。
 
 ## 更新後に確かめたこと
 
