@@ -1,39 +1,38 @@
 # vite-plus-prac
 
-[Vite+](https://viteplus.dev/)（`vp`）1.0 を検証するためのリポジトリ。Vite+ で構築したフロントエンドと、調査の過程で分かったことをまとめたドキュメントを置いている。
+[Vite+](https://viteplus.dev/)（`vp`）を検証するためのリポジトリ。React + TypeScript のフロントエンドと、調査メモ（`docs/`）を置いている。
 
-## フォルダ構成
+## セットアップ
 
-```text
-.
-├── .editorconfig                  # エディタ共通の書式設定（文字コード・改行・インデント）
-├── .github/
-│   └── workflows/
-│       └── auto-review.yml        # PR 作成時に自動でコメントのレビューを付ける
-├── .node-version                  # Node.js のバージョン（リポジトリ全体に効く）
-├── .vite-hooks/
-│   └── pre-commit                 # コミット前に実行する Git フック
-├── docs/                          # 調査メモ
-├── frontend/                      # フロントエンド（React + TypeScript + Vite+）
-└── vite-plus-prac.code-workspace  # VS Code のワークスペース設定
+```bash
+curl -fsSL https://vite.plus | bash   # vp を入れる（入れたら新しいターミナルを開く）
+vp hooks enable                        # Git フックを有効にする
+vp env install                         # devEngines の版の Node.js と pnpm を入れる
+vp install                             # 依存関係を入れる
+vp dev                                 # http://localhost:5173/
 ```
 
-| パス                                | 内容                                                                                                                                    |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `frontend/`                         | フロントエンドのソース。**セットアップ手順と操作方法は [frontend/README.md](frontend/README.md) を参照**                                |
-| `docs/`                             | Vite+ を調査したときのメモ（下記「ドキュメント」を参照）                                                                                |
-| `.node-version`                     | Node.js のバージョン。`vp` は親ディレクトリへさかのぼって探すので、サブフォルダにも効く                                                 |
-| `.vite-hooks/pre-commit`            | コミット時に `frontend/` で `vp staged`（フォーマット・lint・型チェック）を実行する                                                     |
-| `.editorconfig`                     | エディタ共通の書式設定（UTF-8・LF・2 スペースインデント・1 行 100 文字）                                                                |
-| `vite-plus-prac.code-workspace`     | VS Code のワークスペース設定。Oxc 拡張機能が `frontend/node_modules` の vite-plus を見つけられるよう、`frontend` を別フォルダとして開く |
-| `.github/workflows/auto-review.yml` | PR 作成時に `github-actions[bot]` がコメント扱い（COMMENT）のレビューを投稿する。承認はしないので、マージの可否には影響しない           |
+## よく使うコマンド
+
+| コマンド                      | 内容                                                                             |
+| ----------------------------- | -------------------------------------------------------------------------------- |
+| `vp dev`                      | 開発サーバーを起動する                                                           |
+| `vp run build`                | 型チェック（`tsc -b`）をしてからビルドする                                       |
+| `vp preview`                  | ビルド結果を確認する（<http://localhost:4173/>）                                 |
+| `vp check` / `vp check --fix` | lint・フォーマット・型チェック / 自動修正                                        |
+| `vp test` / `vp test watch`   | テストを実行する / 監視モードで実行する                                          |
+| `vp add <名前>`               | パッケージを追加する（`-D` で devDependencies）                                  |
+| `vp outdated` / `vp update`   | 更新を確認する / 更新する（[docs/02](docs/02-依存関係の更新（vp%20update）.md)） |
+
+コミット時は pre-commit フックが `vp staged`（ステージしたファイルに `vp check --fix`）を実行する。飛ばすときは `VP_GIT_HOOKS=0 git commit`。
 
 ## ドキュメント
 
-- [docs/01 Vite+ 1.0 でできること](docs/01-vite-plus-1.0でできること.md): Vite+ 1.0 の調査メモ。Node.js / pnpm の管理、lint・format・test、TypeScript 7、Git フックについて
-- [docs/02 依存関係の更新（vp update）](docs/02-依存関係の更新（vp%20update）.md): `vp update` / `vp outdated` の使い分けと、catalog の仕組み
-- [docs/03 tsconfig・エイリアス・Vitest のグローバル API](docs/03-tsconfig・エイリアス・Vitest%20のグローバル%20API.md): TypeScript 7 向けの tsconfig、`~` エイリアス、テスト API を import せずに使う設定について
-- [docs/04 vp install と pnpm の関係](docs/04-vp%20install%20と%20pnpm%20の関係.md): `vp install` が中で pnpm を実行する仕組みと、`pnpm install` を直接実行しない理由
-- [docs/05 React Compiler（Rust 版）の導入](docs/05-React%20Compiler（Rust%20版）の導入.md): `oxc-transform-react` で React Compiler を有効にする方法と、Babel 版との違い、有効になっているかの確かめ方
-- [docs/06 Vite+ 1.1.0・pnpm 12.11.2 へのアップグレード](docs/06-Vite+%201.1.0・pnpm%2012.11.2%20へのアップグレード.md): アップグレードの手順と、`vp migrate` の `ui-token` 警告（誤検知）への対応
-- [docs/07 Vite+ のモノレポ構成（React + Hono + Bun）](docs/07-Vite+%20のモノレポ構成（React%20+%20Hono%20+%20Bun）.md): pnpm ワークスペースで React と Hono（Bun）を動かす構成、Node.js のバージョンを `devEngines.runtime` に書く方法、`vp run` のキャッシュで `tsc` の型エラーを見逃す落とし穴
+- [01 Vite+ 1.0 でできること](docs/01-vite-plus-1.0でできること.md)
+- [02 依存関係の更新（vp update）](docs/02-依存関係の更新（vp%20update）.md)
+- [03 tsconfig・エイリアス・Vitest のグローバル API](docs/03-tsconfig・エイリアス・Vitest%20のグローバル%20API.md)
+- [04 vp install と pnpm の関係](docs/04-vp%20install%20と%20pnpm%20の関係.md)
+- [05 React Compiler（Rust 版）の導入](docs/05-React%20Compiler（Rust%20版）の導入.md)
+- [06 Vite+ 1.1.0・pnpm 12.11.2 へのアップグレード](docs/06-Vite+%201.1.0・pnpm%2012.11.2%20へのアップグレード.md)
+- [07 Vite+ のモノレポ構成（React + Hono + Bun）](docs/07-Vite+%20のモノレポ構成（React%20+%20Hono%20+%20Bun）.md)
+- [08 Vite+ 1.6.0 への更新とフラット構成への移行](docs/08-Vite+%201.6.0%20への更新とフラット構成への移行.md)

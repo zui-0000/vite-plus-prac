@@ -339,6 +339,8 @@ Error: ERR_PNPM_BAD_RUNTIME_VERSION
 
 このリポジトリは、ルートに `package.json` が無く、`frontend/` の中にしか無い。リポジトリ全体に効かせるには、ルートに置ける `.node-version` を使うしかない（`01-vite-plus-1.0でできること.md` の「別の方法: Node.js を `.node-version` で固定する」を参照）。モノレポはルートに `package.json` があるので、`devEngines.runtime` にまとめられる。
 
+> 追記（2026-11-12）: `frontend/` をなくしてフラット構成にし、Node.js の固定も `.node-version` から `package.json` の `devEngines.runtime`（`onFail: "error"`）に移した（`08-Vite+ 1.6.0 への更新とフラット構成への移行.md` を参照）。
+
 ## Hono を Bun で動かす
 
 Hono のアプリ本体（`app.ts`）と、Bun で起動するファイル（`index.ts`）を分ける。
@@ -464,6 +466,8 @@ API 側でレスポンスの形を変えると、フロントの型チェック�
 | pnpm のバージョン・lockfile | `frontend/` の中                       | ルート                                                               |
 | `tsc` のキャッシュ          | scripts をキャッシュしないので関係ない | `tsc` を `cache: false` のタスクにする                               |
 | Git フック（`vp staged`）   | `frontend/` で実行                     | ルートで実行する（未検証）                                           |
+
+> 追記（2026-11-12）: この表の「このリポジトリ」列は、フラット構成にする前のもの。今はどれもルートにある（`08-Vite+ 1.6.0 への更新とフラット構成への移行.md` を参照）。
 
 ## 参考
 

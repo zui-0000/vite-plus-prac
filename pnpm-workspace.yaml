@@ -2,8 +2,8 @@
 # Vite+ がそろえる版。vp migrate が書き換えるので、手で版を変えない
 # ---------------------------------------------------------------------------
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@1.4.0
-  vite-plus: 1.4.0
+  vite: npm:@voidzero-dev/vite-plus-core@1.6.0
+  vite-plus: 1.6.0
 overrides:
   vite@*: "catalog:"
 
@@ -22,9 +22,9 @@ autoDedupe: true
 # ---------------------------------------------------------------------------
 # サプライチェーン攻撃への備え
 # ---------------------------------------------------------------------------
-# 公開から 2 日（2880 分）たっていない版は入れない。自分で書いたので「厳しい」動き（足りなければエラー）になる。
-# 止まったら、minimumReleaseAgeExclude には足さず、2 日たった版に入れ直す（vp migrate が足したものも消す）
-minimumReleaseAge: 2880
+# 公開から 1 日（1440 分）たっていない版は入れない。自分で書いたので「厳しい」動き（足りなければエラー）になる。
+# 止まったら、minimumReleaseAgeExclude には足さず、1 日たった版に入れ直す（vp migrate が足したものも消す）
+minimumReleaseAge: 1440
 
 # 前に公開された版より、公開の証明（trusted publishing・provenance）が弱い版は入れない
 trustPolicy: no-downgrade
