@@ -1,0 +1,56 @@
+# ---------------------------------------------------------------------------
+# 依存の版
+# ---------------------------------------------------------------------------
+# 依存の版は catalog で一元管理し、package.json には "catalog:" と書く。
+# vite と vite-plus は vp migrate が管理するので、手で変えない
+catalogMode: prefer
+# vp add で版を固定して書く（^ を付けない）。版が動くのを、上げたときだけにするため。
+# 範囲を指定して足したとき（vp add "pkg@^1.0.0"）は範囲のまま書かれるので、固定に直す
+savePrefix: ""
+
+catalog:
+  "@testing-library/dom": 10.4.2
+  "@testing-library/jest-dom": 7.0.1
+  "@testing-library/react": 16.3.3
+  "@testing-library/user-event": 14.6.8
+  "@types/node": 26.6.6
+  "@types/react": 19.3.0
+  "@types/react-dom": 19.3.0
+  "@vitejs/plugin-react": 6.1.2
+  jsdom: 30.1.3
+  oxc-transform-react: 0.152.0
+  react: 19.3.1
+  react-dom: 19.3.1
+  typescript: 7.0.2
+  vite: npm:@voidzero-dev/vite-plus-core@1.6.0
+  vite-plus: 1.6.0
+
+# vite を Vite+ の vite-plus-core に置き換える。版が vite の版と一致しないため、peer の検査を緩める
+overrides:
+  vite@*: "catalog:"
+
+peerDependencyRules:
+  allowAny:
+    - vite
+  allowedVersions:
+    vite: "*"
+
+# ---------------------------------------------------------------------------
+# 依存の入れ方
+# ---------------------------------------------------------------------------
+# pnpm の版は Vite+ が devEngines.packageManager を見て決める。pnpm 自身には切り替えさせない
+pmOnFail: ignore
+
+# install・add のとき、1 つの版で全体の範囲を満たせるなら、その版にまとめる（既定は false）。
+# 同じパッケージが複数の版で入るのを防ぐ
+autoDedupe: true
+
+# ---------------------------------------------------------------------------
+# サプライチェーン攻撃への備え
+# ---------------------------------------------------------------------------
+# 公開から 1 日（1440 分）たっていない版は入れない。自分で書いたので「厳しい」動き（足りなければエラー）になる。
+# 止まっても minimumReleaseAgeExclude には足さず、1 日たった版を使う（vp migrate が足すことがあるので、そのときは消す）
+minimumReleaseAge: 1440
+
+# 以前の版より公開の証明（trusted publishing・provenance など）が弱い版は入れない
+trustPolicy: no-downgrade

@@ -15,6 +15,8 @@ vp update -L <パッケージ名>   # 3. メジャーバージョンの更新は
 - `vp update -L` を、パッケージを指定せずに全部へかけない（理由は後述）
 - Vite+ 本体（`vite` / `vite-plus`）は `vp update` ではなく、`vp upgrade` → `vp migrate` の順で更新する
 
+> 追記（2026-11-12）: 今はすべての依存を `pnpm-workspace.yaml` の catalog に固定の版で書き、`package.json` には `catalog:` と書いている。この文書の `^` / `~` の範囲の話は、固定にする前のもの（`08-Vite+ 1.6.0 への更新とフラット構成への移行.md` の「`pnpm-workspace.yaml` を ai-chat-prac に合わせた」を参照）。
+
 ## package.json のバージョン表記は「範囲」
 
 `package.json` に書かれているのは、**インストールしてよいバージョンの範囲**。インストールされているバージョンそのものではない。
@@ -128,6 +130,8 @@ Testing Library を追加してコミットした後、もう一度 `vp update` 
 `@types/node` は Node.js の API の型定義で、メジャーバージョンは Node.js 本体と対応している。Node.js 24 で動かしているのに 26 の型を入れると、26 で追加された API を使っても型チェックは通ってしまう。そして実行すると、Node.js 24 にはその API が無いので落ちる。
 
 そのため `@types/node` は、`.node-version`（このリポジトリでは 24.21.0）と同じメジャーバージョンの範囲（`^24.x`）にとどめる。Node.js 本体を 26 に上げるときに、一緒に上げる。
+
+> 追記（2026-11-12）: Node.js のバージョンは、今は `package.json` の `devEngines.runtime` に書いている（`08-Vite+ 1.6.0 への更新とフラット構成への移行.md` を参照）。
 
 ### メジャーバージョンアップは 1 つずつ意図して行う
 

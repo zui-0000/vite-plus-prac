@@ -7,7 +7,10 @@ export default defineConfig({
   staged: {
     "*": "vp check --fix",
   },
-  fmt: {},
+  fmt: {
+    // docs/ は書いた時点の記録なので整形しない（表の桁揃えや、コード例の JSON に末尾カンマが足されるのを防ぐ）
+    ignorePatterns: ["docs/**"],
+  },
   lint: {
     plugins: ["react", "typescript", "oxc"],
     rules: {

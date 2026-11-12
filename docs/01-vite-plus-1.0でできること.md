@@ -149,6 +149,8 @@ pnpm が読むのは `package.json` の `devEngines.runtime`（と `engines.runt
 
 このリポジトリは研究用で、実験用のプロジェクトをサブディレクトリに並べる構成なので、ルートの `.node-version` で固定する方法が向いている。
 
+> 追記（2026-11-12）: `frontend/` をなくしてフラット構成にし、Node.js の固定も `.node-version` から `package.json` の `devEngines.runtime`（`onFail: "error"`）に移した（`08-Vite+ 1.6.0 への更新とフラット構成への移行.md` を参照）。
+
 lockfile と node_modules を消してから入れ直すと、`node@runtime` が lockfile から消え、スクリプト内の `node` も vp の Node.js（`~/.vite-plus/js_runtime/node/24.21.0`）になることを確認した。既存の lockfile があると「Already up to date」で反映されないので注意。
 
 ## 2. React + Vite / Vitest / Oxfmt / Oxlint → できる
